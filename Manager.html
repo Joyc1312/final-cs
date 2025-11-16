@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Manager - JST.C</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="Index.html">
+      <img src="logo.png" class="brand-logo" alt="logo"><span>JST.C</span>
+    </a>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="Index.html">Home</a></li>
+        <li><a href="Services.html">Services</a></li>
+        <li><a href="About.html">About</a></li>
+        <li><a href="Contact.html">Contact</a></li>
+        <li><a href="Book.html">Book</a></li>
+        <li><a href="MyBookings.html">My Bookings</a></li>
+        <li><a class="active" href="Manager.html">Manager</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="page-card">
+    <h1>Manager Panel</h1>
+    <p>Enter the manager password to view and manage bookings.</p>
+
+    <div id="controls" style="display:none">
+      <div id="list" class="grid-list"></div>
+    </div>
+
+    <p id="msg"></p>
+  </div>
+</main>
+
+<footer><p>&copy; 2025 JST.C</p></footer>
+
+<script>
+const MANAGER_PASSWORD = 'Admin123!';
+function readBookings(){ try{ return JSON.parse(localStorage.getItem('jstc_bookings')||'[]'); }catch(e){return[]} }
+function saveBookings(list){ localStorage.setItem('jstc_bookings', JSON.stringify(list)); }
+function formatDate(ts){ return new Date(ts).toLocaleString(); }
+
+function render(){
+  const box = document.getElementById('list');
+  const bookings = readBookings();
+  if(bookings.length===0){ box.innerHTML='<p>No bookings.</p>'; return; }
+  box.innerHTML = bookings.map(b=>`
+    <div class="box" data-id="${b.id}">
+      <p><b>ID:</b> ${b.id}</p>
+      <p><b>Client:</b> ${b.client_name} (${b.client_email})</p>
+      <p><b>Service:</b> ${b.service}</p>
+      <p><b>Start:</b> ${formatDate(b.start_ts)}</p>
+      <p><b>Duration:</b> ${b.durationMinutes} min</p>
+      <p><b>Status:</b>
+        <select class="status">
+          <option ${b.status==='pending'?'selected':''} value="pending">pending</option>
+          <option ${b.status==='confirmed'?'selected':''} value="confirmed">confirmed</option>
+          <option ${b.status==='cancelled'?'selected':''} value="cancelled">cancelled</option>
+        </select>
+      </p>
+      <p><button class="saveBtn">Save</button> <button class="delBtn">Delete</button></p>
+    </div>
+  `).join('');
+
+  document.querySelectorAll('.saveBtn').forEach(btn=>{
+    btn.addEventListener('click',(e)=>{
+      const parent = e.target.closest('.box');
+      const id = parent.dataset.id;
+      const list = readBookings();
+      const b = list.find(x=>x.id===id);
+      if(!b) return;
+      b.status = parent.querySelector('.status').value;
+      saveBookings(list);
+      document.getElementById('msg').textContent='Saved.';
+      setTimeout(()=>document.getElementById('msg').textContent='',1200);
+    });
+  });
+
+  document.querySelectorAll('.delBtn').forEach(btn=>{
+    btn.addEventListener('click',(e)=>{
+      if(!confirm('Delete booking?')) return;
+      const parent = e.target.closest('.box');
+      const id = parent.dataset.id;
+      let list = readBookings();
+      list = list.filter(x=>x.id!==id);
+      saveBookings(list);
+      render();
+    });
+  });
+}
+
+function init(){
+  const pw = prompt('Manager password:');
+  if(pw !== MANAGER_PASSWORD){ document.getElementById('msg').textContent='Access denied.'; return; }
+  document.getElementById('controls').style.display='';
+  render();
+}
+
+init();
+</script>
+</body>
+</html>

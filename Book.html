@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Book - JST.C</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="Index.html">
+      <img src="logo.png" class="brand-logo" alt="logo"><span>JST.C</span>
+    </a>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="Index.html">Home</a></li>
+        <li><a href="Services.html">Services</a></li>
+        <li><a href="About.html">About</a></li>
+        <li><a href="Contact.html">Contact</a></li>
+        <li><a class="active" href="Book.html">Book</a></li>
+        <li><a href="MyBookings.html">My Bookings</a></li>
+        <li><a href="Manager.html">Manager</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="page-card">
+    <h1>Book Appointment</h1>
+
+    <form id="bookForm">
+      <div class="form-group">
+        <label>Your name</label>
+        <input id="clientName" required />
+      </div>
+
+      <div class="form-group">
+        <label>Your email</label>
+        <input id="clientEmail" type="email" required />
+      </div>
+
+      <div class="form-group">
+        <label>Service</label>
+        <select id="service" required>
+          <option value="">Select</option>
+          <option>Corporate</option>
+          <option>Employment</option>
+          <option>Debt Recovery</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Date</label>
+        <input id="date" type="date" required />
+      </div>
+
+      <div class="form-group">
+        <label>Start time</label>
+        <input id="time" type="time" required />
+      </div>
+
+      <div class="form-group">
+        <label>Duration (minutes)</label>
+        <input id="duration" type="number" value="30" min="15" required />
+      </div>
+
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <textarea id="notes"></textarea>
+      </div>
+
+      <button type="submit">Submit</button>
+      <p id="msg" aria-live="polite"></p>
+    </form>
+  </div>
+</main>
+
+<footer><p>&copy; 2025 JST.C</p></footer>
+
+<script>
+function readBookings(){ try{ return JSON.parse(localStorage.getItem('jstc_bookings')||'[]'); }catch(e){return[]} }
+function saveBookings(list){ localStorage.setItem('jstc_bookings', JSON.stringify(list)); }
+function genId(){ return 'b_'+Date.now()+'_'+Math.floor(Math.random()*900+100); }
+
+document.getElementById('bookForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const name = document.getElementById('clientName').value.trim();
+  const email = document.getElementById('clientEmail').value.trim().toLowerCase();
+  const service = document.getElementById('service').value;
+  const date = document.getElementById('date').value;
+  const startTime = document.getElementById('time').value;
+  const duration = parseInt(document.getElementById('duration').value,10) || 30;
+  const notes = document.getElementById('notes').value.trim();
+  const msg = document.getElementById('msg');
+
+  if(!name||!email||!service||!date||!startTime){ msg.textContent='Please complete the form.'; return; }
+  const start_ts = new Date(date+'T'+startTime).getTime();
+  if(isNaN(start_ts)){ msg.textContent='Invalid date/time.'; return; }
+
+  const bookings = readBookings();
+  const conflict = bookings.some(b=>{
+    const s=b.start_ts;
+    const e=s+(b.durationMinutes||30)*60000;
+    const ns=start_ts;
+    const ne=ns+duration*60000;
+    return (ns<e && ne>s);
+  });
+
+  if(conflict){ msg.textContent='Requested time conflicts with an existing booking.'; return; }
+
+  const newBooking = {
+    id: genId(),
+    client_name: name,
+    client_email: email,
+    service,
+    start_ts,
+    durationMinutes: duration,
+    notes,
+    status: 'pending',
+    created_at: Date.now()
+  };
+
+  bookings.push(newBooking);
+  saveBookings(bookings);
+
+  msg.textContent = 'Booking saved. View it at My Bookings.';
+  this.reset();
+});
+</script>

@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+
+:root{
+  --primary:#223344;
+  --accent:#2c3e50;
+  --muted:#6b7280;
+  --card:#ffffff;
+  --surface:#f6f7f9;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter, Arial, sans-serif;
+  background:var(--surface);
+  color:#111;
+}
+
+.container{ max-width:1100px; margin:0 auto; padding:0 20px; }
+
+.site-header{ background:#fff; border-bottom:1px solid #e5e7eb; }
+.header-inner{ display:flex; justify-content:space-between; align-items:center; padding:16px 0; }
+.brand{ display:flex; align-items:center; gap:10px; color:var(--primary); text-decoration:none; }
+.brand-logo{ width:45px; height:45px; object-fit:cover; border-radius:8px; }
+
+.main-nav ul{ margin:0; padding:0; list-style:none; display:flex; gap:14px; }
+.main-nav a{ text-decoration:none; color:var(--muted); padding:8px 12px; border-radius:6px; }
+.main-nav a:hover, .main-nav a.active{ background:#eef3f8; color:var(--primary); }
+
+.page-card{ background:#fff; padding:28px; margin-top:32px; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.04); }
+
+.services-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+.service-card{ background:#fff; padding:16px; border-radius:10px; border:1px solid #e5e7eb; text-decoration:none; text-align:center; color:var(--primary); font-weight:600; }
+.service-card:hover{ background:var(--accent); color:#fff; }
+
+.form-group{ display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+input, select, textarea{ padding:10px; border-radius:8px; border:1px solid #ddd; }
+button, .btn{ padding:10px 16px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; }
+button:hover, .btn:hover{ background:#112129; }
+
+.grid-list{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
+.box{ background:#fff; border-radius:10px; padding:16px; border:1px solid #e5e7eb; }
+
+footer{ text-align:center; padding:28px 0; color:#777; }

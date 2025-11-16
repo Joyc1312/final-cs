@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Bookings - JST.C</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="Index.html">
+      <img src="logo.png" class="brand-logo" alt="logo"><span>JST.C</span>
+    </a>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="Index.html">Home</a></li>
+        <li><a href="Services.html">Services</a></li>
+        <li><a href="About.html">About</a></li>
+        <li><a href="Contact.html">Contact</a></li>
+        <li><a href="Book.html">Book</a></li>
+        <li><a class="active" href="MyBookings.html">My Bookings</a></li>
+        <li><a href="Manager.html">Manager</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="page-card">
+    <h1>My Bookings</h1>
+
+    <div class="form-group">
+      <label>Enter the email you used to book</label>
+      <input id="email" type="email" />
+      <button id="loadBtn" class="btn" type="button">Load bookings</button>
+      <a class="btn" href="Book.html" style="margin-left:8px">Book another</a>
+    </div>
+
+    <div id="list" class="grid-list"></div>
+    <p id="msg"></p>
+  </div>
+</main>
+
+<footer><p>&copy; 2025 JST.C</p></footer>
+
+<script>
+function readBookings(){ try{ return JSON.parse(localStorage.getItem('jstc_bookings')||'[]'); }catch(e){return[]} }
+function formatDate(ts){ return new Date(ts).toLocaleString(); }
+
+document.getElementById('loadBtn').addEventListener('click', ()=>{
+  const email = (document.getElementById('email').value||'').trim().toLowerCase();
+  const msg = document.getElementById('msg');
+  const list = document.getElementById('list');
+  if(!email){ msg.textContent='Enter your email.'; return; }
+  const bookings = readBookings().filter(b=>(b.client_email||'').toLowerCase()===email);
+  if(bookings.length===0){ list.innerHTML='<p>No bookings found.</p>'; msg.textContent=''; return; }
+  msg.textContent='';
+  list.innerHTML = bookings.map(b=>`
+    <div class="box">
+      <p><b>Service:</b> ${b.service}</p>
+      <p><b>Start:</b> ${formatDate(b.start_ts)}</p>
+      <p><b>Duration:</b> ${b.durationMinutes} minutes</p>
+      <p><b>Status:</b> ${b.status}</p>
+      <p><b>Notes:</b> ${b.notes||'-'}</p>
+    </div>
+  `).join('');
+});
+</script>
+</body>
+</html>
